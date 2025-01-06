@@ -13,9 +13,53 @@ const { NotImplementedError } = require('../extensions/index.js');
  * transform([1, 2, 3, '--discard-prev', 4, 5]) => [1, 2, 4, 5]
  * 
  */
-function transform(/* arr */) {
-  throw new NotImplementedError('Not implemented');
-  // remove line with error and write your code here
+function transform(arr) {
+  if (!Array.isArray(arr)) throw new Error("'arr' parameter must be an instance of the Array!");
+
+  const result = [];
+  let skipNext = false; // флаг для пропуска следующего элемента
+
+  for (let i = 0; i < arr.length; i++) {
+    if (skipNext) {
+      skipNext = false; // пропуск элемент
+      continue;
+    }
+
+    const current = arr[i];
+
+    switch (current) {
+      case '--discard-next':
+        if (i + 1 < arr.length) {
+          skipNext = true; // устанавка флаг для пропуска следующего элемента
+        }
+        break;
+
+      case '--discard-prev':
+        // удаление предыдущего элемента, если он не был пропущен
+        if (result.length > 0 && arr[i - 2] !== '--discard-next') {
+          result.pop();
+        }
+        break;
+
+      case '--double-next':
+        if (i + 1 < arr.length) {
+          result.push(arr[i + 1]); // добавление следующегой элемента
+        }
+        break;
+
+      case '--double-prev':
+        // дублируется предыдущий элемент, если он не был пропущен
+        if (i > 0 && arr[i - 2] !== '--discard-next') {
+          result.push(arr[i - 1]);
+        }
+        break;
+
+      default:
+        result.push(current); // обычный элемент добавляется в результат
+    }
+  }
+
+  return result;
 }
 
 module.exports = {
